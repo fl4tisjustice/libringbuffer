@@ -9,23 +9,46 @@ CPP_SRC		:= $(wildcard $(SRC_DIR)/*.cpp)
 C_OBJ		:= $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(C_SRC)))
 CPP_OBJ		:= $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(notdir $(CPP_SRC)))
 
-LIB			:= libringbuffer.so
 EXE			:= main
 
-CC			:= gcc
-CXX			:= g++
-LD			:= g++
-
 CPPFLAGS	:= -Iinclude/
-CFLAGS		:= --std=c23 -pedantic -Wall -Werror -Wextra
-CXXFLAGS	:= --std=c++23 -pedantic -Wall -Werror -Wextra -fPIC
-LDFLAGS 	:= -L$(LIB_DIR) -l:$(LIB)
 
-.PHONY: library all clean
+COMMON		:= -pedantic -Wall -Werror -Wextra -O3
 
-library: $(LIB_DIR)/$(LIB)
+CFLAGS		:= --std=c23 $(COMMON)
+CXXFLAGS	:= --std=c++23 -fPIC -fvisibility=hidden $(COMMON)
 
-all: library $(BIN_DIR)/$(EXE)
+LDFLAGS 	= -L$(LIB_DIR) -l:$(LIB)
+LIB_LDFLAGS := -shared -fPIC
+
+.PHONY: default linux windows library
+
+default:
+	@if [ -z $(MAKECMDGOALS) ]; then \
+		printf "[ERROR]\tNo target specified. Please select one of: windows linux\n"; \
+		exit; \
+	fi;
+
+linux: LIB					:= libringbuffer.so
+linux: CC   				:= gcc
+linux: CXX  				:= g++
+linux: LD   				:= g++
+linux: CPPFLAGS 			+= -DLIBRINGBUFFER_BUILD
+
+linux:  library $(BIN_DIR)/$(EXE)
+
+windows: LIB				:= libringbuffer.dll
+windows: CC					:= x86_64-w64-mingw32-gcc
+windows: CXX				:= x86_64-w64-mingw32-g++
+windows: LD					:= x86_64-w64-mingw32-g++
+windows: CPPFLAGS 			+= -DLIBRINGBUFFER_BUILD
+
+windows: LIB_LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,-Bdynamic,--no-whole-archive
+
+windows: library $(BIN_DIR)/$(EXE)
+
+library: $(CPP_OBJ) | $(LIB_DIR)
+	$(LD) $(LIB_LDFLAGS) $^ -o $(LIB_DIR)/$(LIB)
 
 $(BIN_DIR)/$(EXE): $(C_OBJ) | $(LIB_DIR)/$(LIB) $(BIN_DIR)
 	$(LD) $(LDFLAGS) $^ -o $@
@@ -36,8 +59,6 @@ $(C_OBJ): $(C_SRC) | $(OBJ_DIR)
 $(CPP_OBJ): $(CPP_SRC) | $(OBJ_DIR)
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-$(LIB_DIR)/$(LIB): $(CPP_OBJ) | $(LIB_DIR)
-	$(LD) -shared $^ -o $@
 
 $(BIN_DIR) $(LIB_DIR) $(OBJ_DIR):
 	@mkdir -p $@
