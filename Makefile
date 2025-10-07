@@ -13,7 +13,7 @@ EXE			:= main
 
 CPPFLAGS	:= -Iinclude/
 
-COMMON		:= -pedantic -Wall -Werror -Wextra -O3
+COMMON		:= -pedantic -pedantic-errors -Wpedantic -Wall -Werror -Wextra -Wabi -O3
 
 CFLAGS		:= --std=c23 $(COMMON)
 CXXFLAGS	:= --std=c++23 -fPIC -fvisibility=hidden $(COMMON)
@@ -33,7 +33,6 @@ linux: LIB					:= libringbuffer.so
 linux: CC   				:= gcc
 linux: CXX  				:= g++
 linux: LD   				:= g++
-linux: CPPFLAGS 			+= -DLIBRINGBUFFER_BUILD
 
 linux:  library $(BIN_DIR)/$(EXE)
 
@@ -41,12 +40,12 @@ windows: LIB				:= libringbuffer.dll
 windows: CC					:= x86_64-w64-mingw32-gcc
 windows: CXX				:= x86_64-w64-mingw32-g++
 windows: LD					:= x86_64-w64-mingw32-g++
-windows: CPPFLAGS 			+= -DLIBRINGBUFFER_BUILD
 
 windows: LIB_LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,-Bdynamic,--no-whole-archive
 
 windows: library $(BIN_DIR)/$(EXE)
 
+library: CPPFLAGS			+= -DLIBRINGBUFFER_BUILD
 library: $(CPP_OBJ) | $(LIB_DIR)
 	$(LD) $(LIB_LDFLAGS) $^ -o $(LIB_DIR)/$(LIB)
 
