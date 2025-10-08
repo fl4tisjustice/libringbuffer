@@ -183,7 +183,7 @@ class RingQueue {
             #ifdef __linux
             munmap(reinterpret_cast<T*>(ptr), size);
             #elifdef _WIN32
-            VirtualFree(reinterpret_cast<LPVOID>(ptr), 0, MEM_RELEASE);
+            UnmapViewOfFile(reinterpret_cast<LPCVOID>(ptr));
             #endif
         }
 };
