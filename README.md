@@ -1,4 +1,4 @@
-# libringbuffer
+# libringqueue
 
 ## Disclaimer
 This is (mostly) a PoC/toy project (at least until I compare performances) and it should **NOT** be used in any real production environments.
@@ -41,10 +41,10 @@ The library currently exposes a few functions:
 ```cpp
 // C++
 template <typename T>
-RingBuffer(size_t mininumCount)
+RingQueue(size_t mininumCount)
 
 // C
-ringbuffer_handle ringbuffer_create(size_t minimum_count, size_t elem_size);
+ringqueue_handle ringqueue_create(size_t minimum_count, size_t elem_size);
 ```
 
 These are the ring buffer constructor and allocator respectively. They will provide a ring buffer object (C++) or an opaque pointer to a ring buffer object (C).
@@ -56,7 +56,7 @@ Or don't, I'm not your mom.
 Particularly, in the case of C, there is an additional function supplied:
 
 ```c
-void ringbuffer_free(ringbuffer_handle handle);
+void ringqueue_free(ringqueue_handle handle);
 ```
 
 As the name implies, it will free the previously allocated ring buffer.
@@ -74,9 +74,9 @@ template <typename T>
 [[ nodiscard ]] T pop() T pop(size_t count)
 
 // C
-bool ringbuffer_enqueue(ringbuffer_handle handle, void *item, size_t size);
+bool ringqueue_enqueue(ringqueue_handle handle, void *item, size_t size);
 
-bool ringbuffer_pop(ringbuffer_handle handle, void *out, size_t size);
+bool ringqueue_pop(ringqueue_handle handle, void *out, size_t size);
 ```
 While `enqueue()` is used to push an element to the back of the queue, `pop()` is used to pop an element off the front.
 (Additional `enqueueMany()` and `popMany()` are provided in the C++ implementation, but they're mostly there to facilitate the usage of the C interface, and fall outside the scope of the immediately projectable use for now.)
@@ -94,8 +94,8 @@ template <typename T>
 size_t capacity() const;
 
 // C
-size_t ringbuffer_size(ringbuffer_handle handle);
-size_t ringbuffer_capacity(ringbuffer_handle handle);
+size_t ringqueue_size(ringqueue_handle handle);
+size_t ringqueue_capacity(ringqueue_handle handle);
 ```
 ## What I Learned (Am Learning?)
 - Duck typing (somehow never messed around with it before)

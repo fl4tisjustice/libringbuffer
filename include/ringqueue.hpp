@@ -1,7 +1,7 @@
 #if defined(__linux) || defined(_WIN32)
 
-#ifndef __RINGBUFFER_H__
-#define __RINGBUFFER_H__
+#ifndef __RINGQUEUE_H__
+#define __RINGQUEUE_H__
 
 #include <cstring>
 #include <cassert>
@@ -26,7 +26,7 @@
 #include <vector>
 #include <stdexcept>
 
-#define ANONYMOUS_FILENAME "ringbuffer"
+#define ANONYMOUS_FILENAME "ringqueue"
 
 #define MESSAGE_PREFIX(tag) "[" #tag "]\t"
 
@@ -37,7 +37,7 @@
     MESSAGE_PREFIX(ERROR)"Attempted to pop element off of an empty buffer.\n"
 
 template <typename T>
-class RingBuffer {
+class RingQueue {
     private:
         uintptr_t ptr;
         size_t size;
@@ -64,7 +64,7 @@ class RingBuffer {
         }
 
     public:
-        RingBuffer(size_t mininumCount) : ptr(0zu), size(0zu), write(0zu), read(0zu)  {
+        RingQueue(size_t mininumCount) : ptr(0zu), size(0zu), write(0zu), read(0zu)  {
             size_t page_size = 0;
 
             #ifdef __linux
@@ -181,7 +181,7 @@ class RingBuffer {
             return size / sizeof(T);
         }
 
-        ~RingBuffer() {
+        ~RingQueue() {
             #ifdef __linux
             munmap(reinterpret_cast<T*>(ptr), size);
             #elifdef _WIN32

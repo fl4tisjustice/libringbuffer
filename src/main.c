@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "ringbuffer_interface.h"
+#include "ringqueue_interface.h"
 
 int main() {
-    ringbuffer_handle handle = ringbuffer_create(10, sizeof(int));
+    ringqueue_handle handle = ringqueue_create(10, sizeof(int));
 
     printf("%zu\n", LENGTH(handle, int));
 
@@ -17,5 +17,5 @@ int main() {
     printf("%d\n", (*(int**)(void**)handle)[((size_t*)(void*)handle)[1] / 4]);
 
 cleanup:
-    ringbuffer_free(handle);
+    ringqueue_free(handle);
 }

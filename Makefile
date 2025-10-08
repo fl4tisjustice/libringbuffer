@@ -29,14 +29,14 @@ default:
 		exit; \
 	fi;
 
-linux: LIB					:= libringbuffer.so
+linux: LIB					:= libringqueue.so
 linux: CC   				:= gcc
 linux: CXX  				:= g++
 linux: LD   				:= g++
 
 linux:  library $(BIN_DIR)/$(EXE)
 
-windows: LIB				:= libringbuffer.dll
+windows: LIB				:= libringqueue.dll
 windows: CC					:= x86_64-w64-mingw32-gcc
 windows: CXX				:= x86_64-w64-mingw32-g++
 windows: LD					:= x86_64-w64-mingw32-g++
@@ -44,7 +44,7 @@ windows: LIB_LDFLAGS 		+= -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-
 
 windows: library $(BIN_DIR)/$(EXE)
 
-library: CPPFLAGS			+= -DLIBRINGBUFFER_BUILD
+library: CPPFLAGS			+= -DLIBRINGQUEUE_BUILD
 library: $(CPP_OBJ) | $(LIB_DIR)
 	$(LD) $^ $(LIB_LDFLAGS) -o $(LIB_DIR)/$(LIB)
 
