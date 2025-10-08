@@ -6,7 +6,7 @@
 int main() {
     ringbuffer_handle handle = ringbuffer_create(10, sizeof(int));
 
-    printf("%zu", LENGTH(handle, int));
+    printf("%zu\n", LENGTH(handle, int));
 
     int a = 10;
 

@@ -44,10 +44,6 @@ class RingBuffer {
         ptrdiff_t write;
         ptrdiff_t read;
 
-        #ifdef _WIN32
-        HANDLE fHandle;
-        #endif
-
         inline ptrdiff_t toNormalized(ptrdiff_t offset) const {
             return offset % size;
         }
@@ -100,30 +96,40 @@ class RingBuffer {
 
             #elifdef _WIN32
 
-            constexpr size_t DWORD_WIDTH = sizeof(DWORD) * CHAR_BIT;
-            constexpr size_t MASK = (1llu << DWORD_WIDTH) - 1;
-
-            fHandle = CreateFileMappingA(
+            const HANDLE fHandle = CreateFileMapping2(
                 INVALID_HANDLE_VALUE,
-                NULL,
+                nullptr,
+                FILE_MAP_ALL_ACCESS,
                 PAGE_READWRITE,
-                static_cast<DWORD>((size >> DWORD_WIDTH) & MASK),
-                static_cast<DWORD>(size & MASK),
-                ANONYMOUS_FILENAME
+                SEC_RESERVE,
+                static_cast<ULONG64>(size),
+                nullptr,
+                nullptr,
+                0
             );
 
-            LPVOID const shm = VirtualAlloc(
-                NULL,
+            auto const shm = static_cast<PCHAR>(VirtualAlloc2(
+                nullptr,
+                nullptr,
                 static_cast<SIZE_T>(size * 2),
-                MEM_RESERVE,
-                PAGE_READWRITE
-            );
+                MEM_RESERVE | MEM_RESERVE_PLACEHOLDER,
+                PAGE_NOACCESS,
+                nullptr,
+                0
+            ));
 
-            VirtualFree(shm, 0, MEM_RELEASE);
+            VirtualFree(shm, size, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER);
+            // VirtualFree(shm + size, size, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER);
+
+            MapViewOfFile3(fHandle, nullptr, shm, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0);
+            MapViewOfFile3(fHandle, nullptr, shm + size, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0);
             
-            MapViewOfFileEx(fHandle, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, 0, shm);
-            MapViewOfFileEx(fHandle, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, 0, static_cast<PCHAR>(shm) + size);
-            
+            // Backed memory if ref-counted so the handle can be safely closed,
+            // and this there's no need to keep track of the file handle
+            CloseHandle(fHandle);
+
+            VirtualAlloc2(nullptr, shm, size, MEM_COMMIT, PAGE_READWRITE, nullptr, 0);
+
             #endif
 
             this->ptr = reinterpret_cast<uintptr_t>(shm);
@@ -179,9 +185,7 @@ class RingBuffer {
             #ifdef __linux
             munmap(reinterpret_cast<T*>(ptr), size);
             #elifdef _WIN32
-            UnmapViewOfFile(reinterpret_cast<LPCVOID>(ptr));
-            UnmapViewOfFile(reinterpret_cast<LPCVOID>(ptr + size));
-            CloseHandle(fHandle);
+            VirtualFree(reinterpret_cast<LPVOID>(ptr), 0, MEM_RELEASE);
             #endif
         }
 };

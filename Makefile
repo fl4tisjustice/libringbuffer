@@ -40,17 +40,16 @@ windows: LIB				:= libringbuffer.dll
 windows: CC					:= x86_64-w64-mingw32-gcc
 windows: CXX				:= x86_64-w64-mingw32-g++
 windows: LD					:= x86_64-w64-mingw32-g++
-
-windows: LIB_LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,-Bdynamic,--no-whole-archive
+windows: LIB_LDFLAGS 		+= -static-libgcc -static-libstdc++ -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,-Bdynamic,--no-whole-archive -lonecore 
 
 windows: library $(BIN_DIR)/$(EXE)
 
 library: CPPFLAGS			+= -DLIBRINGBUFFER_BUILD
 library: $(CPP_OBJ) | $(LIB_DIR)
-	$(LD) $(LIB_LDFLAGS) $^ -o $(LIB_DIR)/$(LIB)
+	$(LD) $^ $(LIB_LDFLAGS) -o $(LIB_DIR)/$(LIB)
 
 $(BIN_DIR)/$(EXE): $(C_OBJ) | $(LIB_DIR)/$(LIB) $(BIN_DIR)
-	$(LD) $(LDFLAGS) $^ -o $@
+	$(LD) $^ $(LDFLAGS) -o $@
 
 $(C_OBJ): $(C_SRC) | $(OBJ_DIR)
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $^ -o $@
