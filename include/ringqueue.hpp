@@ -101,7 +101,7 @@ class RingQueue {
                 nullptr,
                 FILE_MAP_ALL_ACCESS,
                 PAGE_READWRITE,
-                SEC_RESERVE,
+                SEC_COMMIT,
                 static_cast<ULONG64>(size),
                 nullptr,
                 nullptr,
@@ -127,8 +127,6 @@ class RingQueue {
             // Backed memory if ref-counted so the handle can be safely closed,
             // and this there's no need to keep track of the file handle
             CloseHandle(fHandle);
-
-            VirtualAlloc2(nullptr, shm, size, MEM_COMMIT, PAGE_READWRITE, nullptr, 0);
 
             #endif
 
