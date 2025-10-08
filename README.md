@@ -71,7 +71,7 @@ template <typename T>
 bool enqueue(T &&item);
 
 template <typename T>
-[[ nodiscard ]] T pop() T pop(size_t count)
+[[ nodiscard ]] T pop();
 
 // C
 bool ringqueue_enqueue(ringqueue_handle handle, void *item, size_t size);
