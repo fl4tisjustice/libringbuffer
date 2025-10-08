@@ -118,8 +118,8 @@ class RingBuffer {
                 0
             ));
 
+            // The backing allocated above is evenly split in twom, so it only requires a single call
             VirtualFree(shm, size, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER);
-            // VirtualFree(shm + size, size, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER);
 
             MapViewOfFile3(fHandle, nullptr, shm, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0);
             MapViewOfFile3(fHandle, nullptr, shm + size, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0);
