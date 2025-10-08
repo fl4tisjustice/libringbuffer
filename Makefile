@@ -58,7 +58,6 @@ $(C_OBJ): $(C_SRC) | $(OBJ_DIR)
 $(CPP_OBJ): $(CPP_SRC) | $(OBJ_DIR)
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-
 $(BIN_DIR) $(LIB_DIR) $(OBJ_DIR):
 	@mkdir -p $@
 
