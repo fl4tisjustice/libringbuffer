@@ -39,7 +39,7 @@
 template <typename T>
 class RingQueue {
     private:
-        uintptr_t ptr;
+        uint8_t *ptr;
         size_t size;
         ptrdiff_t write;
         ptrdiff_t read;
@@ -52,7 +52,7 @@ class RingQueue {
             WRITE, READ
         };
 
-        inline bool check_bounds(Intent intent, size_t count = 1) const {
+        inline bool check_bounds(Intent intent, size_t count = 1zu) const {
             const auto span = static_cast<size_t>(write - read);
 
             switch (intent) {
@@ -64,8 +64,8 @@ class RingQueue {
         }
 
     public:
-        RingQueue(size_t mininumCount) : ptr(0zu), size(0zu), write(0zu), read(0zu)  {
-            size_t page_size = 0;
+        RingQueue(size_t mininumCount) : ptr(nullptr), size(0zu), write(0zu), read(0zu)  {
+            size_t page_size = 0zu;
 
             #ifdef __linux
 
@@ -79,9 +79,9 @@ class RingQueue {
             
             #endif
 
-            assert(page_size != 0 && "Page size not set");
+            assert(page_size != 0zu && "Page size not set");
             
-            const size_t pages = mininumCount * sizeof(T) / page_size + 1;
+            const size_t pages = mininumCount * sizeof(T) / page_size + 1zu;
             const size_t size = pages * page_size;
 
             #ifdef __linux
@@ -89,10 +89,10 @@ class RingQueue {
             int fd = memfd_create(ANONYMOUS_FILENAME, MFD_CLOEXEC);
             ftruncate(fd, size);
 
-            void *const shm = mmap(nullptr, size * 2, PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+            void *const shm = mmap(nullptr, size * 2zu, PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0l);
             
-            mmap(shm, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0);
-            mmap(static_cast<char*>(shm) + size, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0);
+            mmap(shm, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0l);
+            mmap(static_cast<char*>(shm) + size, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0l);
 
             #elifdef _WIN32
 
@@ -105,24 +105,24 @@ class RingQueue {
                 static_cast<ULONG64>(size),
                 nullptr,
                 nullptr,
-                0
+                0lu
             );
 
-            auto const shm = static_cast<PCHAR>(VirtualAlloc2(
+            PVOID const shm = VirtualAlloc2(
                 nullptr,
                 nullptr,
-                static_cast<SIZE_T>(size * 2),
+                static_cast<SIZE_T>(size * 2zu),
                 MEM_RESERVE | MEM_RESERVE_PLACEHOLDER,
                 PAGE_NOACCESS,
                 nullptr,
-                0
-            ));
+                0lu
+            );
 
             // The backing allocated above is evenly split in twom, so it only requires a single call
             VirtualFree(shm, size, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER);
 
-            MapViewOfFile3(fHandle, nullptr, shm, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0);
-            MapViewOfFile3(fHandle, nullptr, shm + size, 0, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0);
+            MapViewOfFile3(fHandle, nullptr, shm, 0llu, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0lu);
+            MapViewOfFile3(fHandle, nullptr, static_cast<PCHAR>(shm) + size, 0llu, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0lu);
             
             // Backed memory if ref-counted so the handle can be safely closed,
             // and this there's no need to keep track of the file handle
@@ -130,7 +130,7 @@ class RingQueue {
 
             #endif
 
-            this->ptr = reinterpret_cast<uintptr_t>(shm);
+            this->ptr = static_cast<decltype(ptr)>(shm);
             this->size = size;
         }
 
@@ -144,7 +144,7 @@ class RingQueue {
 
         bool enqueueMany(std::span<T> &&items) {
             if (!check_bounds(Intent::WRITE, items.size())) [[ unlikely ]] throw std::length_error(LENGTH_ERROR_MESSAGE);
-            ::memcpy(reinterpret_cast<T*>(ptr + toNormalized(write)), items.data(), items.size_bytes());
+            ::memcpy(ptr + toNormalized(write), items.data(), items.size_bytes());
             write += items.size_bytes();
             return true;
         }
@@ -166,7 +166,7 @@ class RingQueue {
         [[ nodiscard ]] bool popMany(T *out, size_t count) {
             if (!check_bounds(Intent::READ, count)) [[ unlikely ]] throw std::out_of_range(OUT_OF_RANGE_ERROR_MESSAGE);
             const size_t bytes = count * sizeof(T);
-            ::memcpy(out, reinterpret_cast<T*>(ptr + toNormalized(read)), bytes);
+            ::memcpy(out, ptr + toNormalized(read), bytes);
             read += bytes;
             return true;
         }
@@ -181,9 +181,9 @@ class RingQueue {
 
         ~RingQueue() {
             #ifdef __linux
-            munmap(reinterpret_cast<T*>(ptr), size);
+            munmap(ptr, size);
             #elifdef _WIN32
-            UnmapViewOfFile(reinterpret_cast<LPCVOID>(ptr));
+            UnmapViewOfFile(ptr);
             #endif
         }
 };
