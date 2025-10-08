@@ -104,6 +104,7 @@ size_t ringqueue_capacity(ringqueue_handle handle);
 
 ## Goals
 - [x] Cross-platform
+- [ ] Switch to CMake
 - [ ] Testing suite
 - [ ] CI/CD
 - [ ] Better error handling (almost nonexistent right now)
