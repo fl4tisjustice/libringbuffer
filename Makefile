@@ -13,7 +13,7 @@ EXE			:= main
 
 CPPFLAGS	:= -Iinclude/
 
-COMMON		:= -pedantic -pedantic-errors -Wpedantic -Wall -Werror -Wextra -Wabi -O3
+COMMON		:= -pedantic -pedantic-errors -Wpedantic -Wall -Werror -Wextra -Wabi -O3 -g
 
 CFLAGS		:= --std=c23 $(COMMON)
 CXXFLAGS	:= --std=c++23 -fPIC -fvisibility=hidden $(COMMON)
@@ -47,6 +47,7 @@ windows: library $(BIN_DIR)/$(EXE)
 library: CPPFLAGS			+= -DLIBRINGQUEUE_BUILD
 library: $(CPP_OBJ) | $(LIB_DIR)
 	$(LD) $^ $(LIB_LDFLAGS) -o $(LIB_DIR)/$(LIB)
+	@cp include/ringqueue_interface.h lib/
 
 $(BIN_DIR)/$(EXE): $(C_OBJ) | $(LIB_DIR)/$(LIB) $(BIN_DIR)
 	$(LD) $^ $(LDFLAGS) -o $@

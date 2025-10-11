@@ -1,4 +1,6 @@
 .vscode/
 bin/
 obj/
-lib/
+
+lib/*
+!lib/*.hs
