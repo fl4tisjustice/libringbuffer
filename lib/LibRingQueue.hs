@@ -12,7 +12,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 
-module LibRingQueue (ringQueueInit, LibRingQueue.length, enqueue, pop) where
+module LibRingQueue (ringQueueInit, LibRingQueue.length, capacity, enqueue, pop) where
 
 import Foreign.C.Types
 import Foreign (Ptr, FunPtr, castPtr)
