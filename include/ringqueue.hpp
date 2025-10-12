@@ -118,7 +118,7 @@ class RingQueue {
                 0lu
             );
 
-            // The backing allocated above is evenly split in twom, so it only requires a single call
+            // The backing allocated above is evenly split in two, so it only requires a single call
             VirtualFree(shm, size, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER);
 
             MapViewOfFile3(fHandle, nullptr, shm, 0llu, size, MEM_REPLACE_PLACEHOLDER, PAGE_READWRITE, nullptr, 0lu);
