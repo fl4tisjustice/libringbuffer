@@ -23,7 +23,7 @@ target_include_directories(ringqueue PUBLIC
 target_link_options(ringqueue PRIVATE -shared -fPIC -fvisibility=hidden)
 
 if (WIN32)
-    target_link_options(ringqueue PRIVATE -static-libgcc -static-libstdc++ LINKER:-Bstatic,--whole-archive -lwinpthread LINKER:-Bdynamic,--no-whole-archive -lonecore)
+    target_link_libraries(ringqueue PRIVATE -static-libgcc -static-libstdc++ LINKER:-Bstatic,--whole-archive -lwinpthread LINKER:-Bdynamic,--no-whole-archive -lonecore)
 endif ()
 
 install(TARGETS ringqueue DESTINATION .)
