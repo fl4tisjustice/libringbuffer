@@ -106,7 +106,7 @@ size_t ringqueue_capacity(ringqueue_handle handle);
 - [x] Cross-platform
 - [x] Switch to CMake
 - [ ] Testing suite
-- [ ] CI/CD
+- [x] CI/CD
 - [ ] Better error handling (almost nonexistent right now)
 - [ ] Support `-fno-exceptions`
 - [ ] Documentation
