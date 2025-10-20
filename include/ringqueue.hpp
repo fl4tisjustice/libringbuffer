@@ -89,7 +89,7 @@ class RingQueue {
             #ifdef __linux
 
             int fd = memfd_create(ANONYMOUS_FILENAME, MFD_CLOEXEC);
-            ftruncate(fd, size);
+            static_cast<void>(ftruncate(fd, size));
 
             void *const shm = mmap(nullptr, size * 2zu, PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0l);
             
