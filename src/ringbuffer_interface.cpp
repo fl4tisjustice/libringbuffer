@@ -20,7 +20,7 @@ extern "C" {
         try {
             reinterpret_cast<RingQueue<uint8_t>*>(handle)->enqueueMany(std::span<uint8_t>(static_cast<uint8_t*>(item), size));
         } catch (const std::length_error &e) {
-            fprintf(stderr, e.what());
+            fprintf(stderr, "%s\n", e.what());
             return false;
         }
 
@@ -31,7 +31,7 @@ extern "C" {
         try {
             return reinterpret_cast<RingQueue<uint8_t>*>(handle)->popMany(static_cast<uint8_t*>(out), size);
         } catch (const std::out_of_range &e) {
-            fprintf(stderr, e.what());
+            fprintf(stderr, "%s\n", e.what());
             return false;
         }
 
