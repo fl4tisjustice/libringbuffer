@@ -1,6 +1,7 @@
 .vscode/
-bin/
-obj/
+build/
 
 lib/*
 !lib/*.hs
+
+compile_commands.json

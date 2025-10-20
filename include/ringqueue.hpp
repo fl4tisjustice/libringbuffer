@@ -61,6 +61,8 @@ class RingQueue {
                 default:
                     assert(false && "Unreachable");
             }
+
+            return false;
         }
 
     public:
