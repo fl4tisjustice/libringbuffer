@@ -10,7 +10,7 @@ set_target_properties (ringqueue PROPERTIES
     DEFINE_SYMBOL LIBRINGQUEUE_BUILD
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -pedantic-errors -Wpedantic -Wall -Werror -Wextra -Wabi -fPIC -fvisibility=hidden")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -pedantic-errors -Wpedantic -Wall -Werror -Wextra -fPIC -fvisibility=hidden")
 
 target_sources(ringqueue PRIVATE
     ${PROJECT_SOURCE_DIR}/src/ringbuffer_interface.cpp
