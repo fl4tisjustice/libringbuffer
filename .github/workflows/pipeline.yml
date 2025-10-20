@@ -1,0 +1,79 @@
+name: libringqueue
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags
+    branches:
+      - '**'  # Triggers on all branches
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.build-name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            build-name: linux
+            additional-args: "['-DCMAKE_CXX_COMPILER=g++-14']"
+          - os: windows-2025
+            build-name: windows
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Build the project
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: Release
+          buildPreset: Release
+          configurePresetAdditionalArgs: ${{ matrix.additional-args }}
+
+      - name: Create Github Artifact
+        uses: actions/upload-artifact@v4.1.0
+        with:
+          name: libringqueue-${{ matrix.build-name }}
+          path: ${{ github.workspace }}/build/Release/libringqueue*
+
+  finalize:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - name: Get Next Version
+        id: getver
+        uses: anothrNick/github-tag-action@v1
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || github.ref_name == 'main')
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TAG_PREFIX: v
+          DEFAULT_BUMP: patch
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'push' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'main'))
+        with:
+          files: |
+            ${{ github.workspace }}/libringqueue.so
+            ${{ github.workspace }}/libringqueue.dll
+
+          tag_name: ${{ steps.getver.outputs.new_tag }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
