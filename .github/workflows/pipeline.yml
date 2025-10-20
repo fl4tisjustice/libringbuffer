@@ -55,7 +55,7 @@ jobs:
       - name: Get Next Version
         id: getver
         uses: anothrNick/github-tag-action@v1
-        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || github.ref_name == 'master')
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || github.ref_name == 'main')
         env:
           GITHUB_TOKEN: ${{ github.token }}
           TAG_PREFIX: v
@@ -68,7 +68,7 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
-        if: github.event_name == 'push' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'master'))
+        if: github.event_name == 'push' && ((startsWith(github.ref, 'refs/tags') || github.ref_name == 'main'))
         with:
           files: |
             ${{ github.workspace }}/libringqueue.so
