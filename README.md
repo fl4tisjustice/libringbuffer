@@ -22,17 +22,15 @@ As a disclaimer that is merely a skill issue.
 
 ## Building
 
-Right now the Makefile requires an explicit target to be supplied (either `linux` or `windows`), which will compile the library for the corresponding OS *and* build `src/main.c` dynamically linked with it.
+As long as one has CMake and Make installed, it should be as simple as running `make` in the project root directory and the rest should be taken care of.
 
-This latter behavior is temporary as I was testing the functionality and will be decoupled from the build script as soon possible.
+By default, the `Release` target will be built, but if for some reason one needs the `Debug` build, it is available by running `make debug` (likewise, `make release` will build the `Release` target, while `make all` will build both). The library will then be available in the `lib` folder.
 
-Nevertheless, the library is usable as-is, either with C++ (header-only library, so as to make use of the metaprogramming features) or C (dynamically linked library).
-
-Simply running `make linux` or `make windows` in the root folder of the repository will place the library in `lib/`.
+The library is usable as-is, either with C++ (header-only library, so as to make use of the metaprogramming features) or C (dynamically linked library).
 
 Aditionally, Programs linked against the library *must* used a C++-capable linker whether that is `gcc` with the `--stdc++` option, directly using `g++`, or any other suitable linker.
 
-Aside from that, no other flags are necessary to link against the library, as any dependencies are statically linked in the library.
+Aside from that, no other flags are necessary to link against the library, as any dependencies are statically linked in the library (C/C++ runtimes on Windows; WinAPI functions will be available through KERNEL32.DLL, which is present in every Windows host and injected indiscriminately at runtime, while on Linux, the standard libraries are "always" available system-wide).
 
 ## Usage
 
